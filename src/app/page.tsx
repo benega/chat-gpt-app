@@ -1,12 +1,11 @@
 import { Separator } from "@/components/ui/separator";
-import Chat from "./components/Chat";
 import { getServerSession } from "next-auth";
-import PreviousChats from "./components/PreviousChats";
 import { Suspense } from "react";
+import Chat from "./components/Chat";
+import PreviousChats from "./components/PreviousChats";
 
 export default async function Home() {
   const session = await getServerSession();
-  console.log("session", session);
 
   return (
     <main className="p-5">
