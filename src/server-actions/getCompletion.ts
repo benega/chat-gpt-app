@@ -1,10 +1,11 @@
 "use server";
 import OpenAI from "openai";
-import { createChat, updateChat } from "@/db";
 import { getServerSession } from "next-auth";
 
+import { createChat, updateChat } from "@/db";
+
 const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
+  apiKey: process.env.OPENAI_API_KEY!,
 });
 
 export async function getCompletion(
@@ -14,11 +15,12 @@ export async function getCompletion(
     content: string;
   }[]
 ) {
-  const session = await getServerSession();
-
   const response = await openai.chat.completions.create({
     model: "gpt-3.5-turbo",
-    messages: messageHistory,
+    messages: messageHistory.map((message) => ({
+      role: message.role,
+      content: message.content,
+    })),
   });
 
   const messages = [
@@ -29,6 +31,7 @@ export async function getCompletion(
     },
   ];
 
+  const session = await getServerSession();
   let chatId = id;
   if (!chatId) {
     chatId = await createChat(
@@ -40,5 +43,8 @@ export async function getCompletion(
     await updateChat(chatId, messages);
   }
 
-  return { messages, id: chatId };
+  return {
+    messages,
+    id: chatId,
+  };
 }
